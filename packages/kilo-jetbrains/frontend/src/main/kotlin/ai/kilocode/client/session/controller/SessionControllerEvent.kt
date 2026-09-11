@@ -2,7 +2,8 @@ package ai.kilocode.client.session.controller
 
 import ai.kilocode.client.session.model.SessionModel
 import ai.kilocode.client.session.model.SessionModelEvent
-import ai.kilocode.rpc.dto.SessionDto
+import ai.kilocode.rpc.dto.KiloAppStatusDto
+import ai.kilocode.rpc.dto.ProfileDto
 
 /**
  * Lifecycle events fired by [SessionController] on the EDT.
@@ -25,12 +26,30 @@ sealed class SessionControllerEvent {
             override fun toString() = "ViewChanged progress"
         }
 
-        data class ShowRecents(val recents: List<SessionDto>) : ViewChanged() {
-            override fun toString() = "ViewChanged recents=${recents.size}"
+        data object ShowEmpty : ViewChanged() {
+            override fun toString() = "ViewChanged empty"
         }
 
         data object ShowSession : ViewChanged() {
             override fun toString() = "ViewChanged session"
+        }
+    }
+
+    data class AccountOverlaySnapshot(
+        val status: KiloAppStatusDto,
+        val profile: ProfileDto?,
+        val transient: Boolean = false,
+        val switching: Boolean = false,
+        val targetOrgId: String? = null,
+    )
+
+    sealed class AccountOverlayChanged : SessionControllerEvent() {
+        data class Show(val account: AccountOverlaySnapshot) : AccountOverlayChanged() {
+            override fun toString() = "AccountOverlayChanged show loggedIn=${account.profile != null}"
+        }
+
+        data object Hide : AccountOverlayChanged() {
+            override fun toString() = "AccountOverlayChanged hide"
         }
     }
 
@@ -41,6 +60,10 @@ sealed class SessionControllerEvent {
 
         data object ShowConnecting : ConnectionChanged() {
             override fun toString() = "ConnectionChanged connecting"
+        }
+
+        data class ShowDownloading(val percent: Int, val version: String? = null, val platform: String? = null) : ConnectionChanged() {
+            override fun toString() = "ConnectionChanged downloading $percent"
         }
 
         data class ShowError(val summary: String, val detail: String?, val source: String = "app") : ConnectionChanged() {

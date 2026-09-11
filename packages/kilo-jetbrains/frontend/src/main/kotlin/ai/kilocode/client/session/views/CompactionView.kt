@@ -4,6 +4,7 @@ import ai.kilocode.client.session.model.Compaction
 import ai.kilocode.client.session.model.Content
 import ai.kilocode.client.plugin.KiloBundle
 import ai.kilocode.client.session.ui.style.SessionEditorStyle
+import ai.kilocode.client.session.views.base.PartView
 import ai.kilocode.client.session.ui.style.SessionUiStyle
 import ai.kilocode.client.ui.UiStyle
 import com.intellij.ui.components.JBLabel
@@ -28,7 +29,7 @@ class CompactionView(@Suppress("UNUSED_PARAMETER") compaction: Compaction) : Par
 
     override val contentId: String = compaction.id
     private val text = JBLabel(KiloBundle.message("session.part.compaction")).apply {
-        foreground = UiStyle.Colors.weak()
+        foreground = SessionUiStyle.Text.Secondary.foreground()
         horizontalAlignment = SwingConstants.CENTER
         border = JBUI.Borders.empty(0, UiStyle.Gap.lg())
     }
@@ -36,12 +37,13 @@ class CompactionView(@Suppress("UNUSED_PARAMETER") compaction: Compaction) : Par
     init {
         layout = BorderLayout()
         isOpaque = false
+        border = JBUI.Borders.empty(UiStyle.Gap.md(), 0)
         applyStyle(SessionEditorStyle.current())
 
         val line = { JPanel().apply {
-            background = SessionUiStyle.View.line()
+            background = SessionUiStyle.View.Outline.color()
             isOpaque = true
-            preferredSize = JBDimension(0, JBUI.scale(1))
+            preferredSize = JBDimension(0, 1)
         } }
 
         val row = JPanel(GridBagLayout()).apply {
@@ -67,8 +69,8 @@ class CompactionView(@Suppress("UNUSED_PARAMETER") compaction: Compaction) : Par
     override fun update(content: Content) {}  // compaction has no mutable state
 
     override fun applyStyle(style: SessionEditorStyle) {
-        if (text.font == style.smallUiFont) return
-        text.font = style.smallUiFont
+        if (text.font == style.smallFont) return
+        text.font = style.smallFont
         revalidate()
         repaint()
     }
